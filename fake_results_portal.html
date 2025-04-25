@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MRECMS Results Portal</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+
+    body {
+      background: #f5f5f5;
+    }
+
+    .header {
+      background: #B71C1C;
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      margin: 0.2rem 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .form-group {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    input[type="text"] {
+      padding: 12px;
+      width: 300px;
+      border: 2px solid #B71C1C;
+      border-radius: 5px;
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 12px 30px;
+      background: #B71C1C;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 1rem;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #8B0000;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #B71C1C;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .results {
+      display: none;
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2rem;
+    }
+
+    .result-table th {
+      background: #B71C1C;
+      color: white;
+    }
+
+    .result-table th,
+    .result-table td {
+      border: 1px solid #ddd;
+      padding: 1rem;
+      text-align: left;
+    }
+
+    .prank-message {
+      position: fixed;
+      bottom: -100px;
+      left: 0;
+      right: 0;
+      background: #B71C1C;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      transition: bottom 0.5s;
+      font-size: 1.2rem;
+      border-top: 4px solid #FFD700;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>MALLA REDDY ENGINEERING COLLEGE<br>AND MANAGEMENT SCIENCES</h1>
+    <p>(AN UGC AUTONOMOUS INSTITUTION)</p>
+    <p>Approved by NAAC | ISO 9001:2015 Certified</p>
+    <p>Kistapur, Medchal, Hyderabad – 501401, Telangana</p>
+  </div>
+
+  <div class="container">
+    <div class="form-group">
+      <h2>Enter Your Hall Ticket Number</h2>
+      <form id="resultForm">
+        <input type="text" id="hallTicket" placeholder="Enter hall ticket number" required>
+        <br>
+        <button type="submit">View Results</button>
+      </form>
+    </div>
+
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Fetching your results...</p>
+    </div>
+
+    <div class="results" id="results">
+      <h2>Academic Results 2023-24</h2>
+      <table class="result-table">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Marks</th>
+            <th>Grade</th>
+          </tr>
+        </thead>
+        <tbody id="marksBody"></tbody>
+      </table>
+      <p id="totalMarks"></p>
+      <p id="percentage"></p>
+    </div>
+  </div>
+
+  <div class="prank-message" id="prankMessage">
+    🎉 APRIL FOOLS! 😜 This is a fake result page! Your real results will be announced soon! 🎓
+  </div>
+
+  <script>
+    const subjects = [
+      "Engineering Mathematics",
+      "Applied Physics",
+      "Programming for Problem Solving",
+      "English"
+    ];
+
+    document.getElementById('resultForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const hallTicket = document.getElementById('hallTicket').value.trim();
+
+      if (!hallTicket) return;
+
+      // Save ticket entry
+      const entries = JSON.parse(localStorage.getItem('hallTickets') || '[]');
+      entries.push({ ticket: hallTicket, time: new Date().toISOString() });
+      localStorage.setItem('hallTickets', JSON.stringify(entries));
+
+      document.querySelector('.loading').style.display = 'block';
+      document.getElementById('results').style.display = 'none';
+
+      setTimeout(() => {
+        generateFakeResults(); // For now, fake data
+        document.querySelector('.loading').style.display = 'none';
+        document.getElementById('results').style.display = 'block';
+
+        setTimeout(() => {
+          document.getElementById('prankMessage').style.bottom = '0';
+        }, 10000);
+      }, 3000);
+    });
+
+    function generateFakeResults() {
+      const marksBody = document.getElementById('marksBody');
+      marksBody.innerHTML = '';
+      let total = 0;
+
+      subjects.forEach(subject => {
+        const marks = Math.floor(Math.random() * 31) + 65; // 65-95 range
+        total += marks;
+        marksBody.innerHTML += `
+          <tr>
+            <td>${subject}</td>
+            <td>${marks}/100</td>
+            <td>${getGrade(marks)}</td>
+          </tr>
+        `;
+      });
+
+      const percentage = (total / (subjects.length * 100)) * 100;
+      document.getElementById('totalMarks').textContent = `Total Marks: ${total}/${subjects.length * 100}`;
+      document.getElementById('percentage').textContent = `Percentage: ${percentage.toFixed(2)}%`;
+    }
+
+    function getGrade(marks) {
+      if (marks >= 90) return 'O';
+      if (marks >= 80) return 'A+';
+      if (marks >= 70) return 'A';
+      if (marks >= 60) return 'B+';
+      return 'B';
+    }
+  </script>
+</body>
+</html>
